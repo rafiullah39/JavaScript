@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>Document</title>
+         <script>
+                  // function newfunc()
+                  // {
+                  //          let x= document.forms["jsform"]["fname"].value;
+                  //          if(x=="")
+                  // {
+                  //          alert ("please enter the name in the text box ");
+                  //          return false;
+                  // }
+                  // }
+
+                  function newNum()
+                  {
+                           let x= document.getElementById("number").value;
+                           let text;
+                           if(isNaN(x) || x < 1 || x > 10)
+                           {
+                                    text="input is not valid";
+                           }
+                           else{
+                                    text="input is correct";
+                           }
+                           document.getElementById("num1").innerHTML=text;
+                  }
+         </script>
+</head>
+<body>
+         <p>javascript</p>
+         <p id="js1">Hello Pakistan</p>
+         <!-- <form name="jsform" action="#" onsubmit="return newNum()" method="post">
+                  name : <input type="text" name="fname">
+                  <input type="submit" value="submit">
+
+         </form>   -->
+                  <input id="number">
+                  <button type=" button" onclick="newNum()">submit</button>
+                  <p id="num1"></p>
+
+       
+<!-- 
+         <script>
+                  // x=5;
+                  // y=10;
+                  // z = x+ y;
+                  document.getElementById("js1") ;
+                  abc.innerHTML ="write text here:";
+         </script> -->
+</body>
+</html>

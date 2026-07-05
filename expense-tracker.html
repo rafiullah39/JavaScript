@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Expense Tracker</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-top: 0;
+  }
+
+  .balance-box {
+    text-align: center;
+    background-color: #e8f5e9;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+  }
+
+  .balance-box p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+
+  #balanceDisplay {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+
+  #balanceDisplay.negative {
+    color: #c62828;
+  }
+
+  form input, form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .two-col {
+    display: flex;
+    gap: 10px;
+  }
+
+  .two-col select {
+    flex: 1;
+  }
+
+  button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  button[type="submit"]:hover {
+    background-color: #45a049;
+  }
+
+  h3 {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: #333;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .entry-desc {
+    font-size: 14px;
+  }
+
+  .entry-cat {
+    font-size: 12px;
+    color: #888;
+    display: block;
+  }
+
+  .entry-amount {
+    font-weight: bold;
+    margin-right: 10px;
+  }
+
+  .income-text {
+    color: #2e7d32;
+  }
+
+  .expense-text {
+    color: #c62828;
+  }
+
+  .delete-btn {
+    background-color: #e57373;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 8px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  .empty-msg {
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    padding: 15px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>My Expense Tracker</h1>
+
+  <div class="balance-box">
+    <p>Current Balance</p>
+    <div id="balanceDisplay">Rs 0</div>
+  </div>
+
+  <form id="entryForm">
+    <input type="text" id="descInput" placeholder="What was it for?" required>
+    <input type="number" id="amountInput" placeholder="Amount" step="0.01" required>
+    <div class="two-col">
+      <select id="typeInput">
+        <option value="expense">Expense</option>
+        <option value="income">Income</option>
+      </select>
+      <select id="categoryInput">
+        <option value="food">Food</option>
+        <option value="transport">Transport</option>
+        <option value="study">Study</option>
+        <option value="freelance">Freelance</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <button type="submit">Add Entry</button>
+  </form>
+
+  <h3>Recent Entries</h3>
+  <ul id="entries"></ul>
+  <div class="empty-msg" id="emptyState">No entries yet. Add one above!</div>
+</div>
+
+<script>
+ 
+  function createLedger(storageKey) {
+    let entries = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(entries));
+    }
+
+    return {
+      add(entry) {
+        entries.push({ ...entry, id: Date.now() });
+        persist();
+      },
+      remove(id) {
+        entries = entries.filter(e => e.id !== id);
+        persist();
+      },
+      getAll() {
+        return [...entries];
+      },
+      getBalance() {
+        return entries.reduce((total, e) => {
+          return e.type === "income" ? total + e.amount : total - e.amount;
+        }, 0);
+      }
+    };
+  }
+
+  const ledger = createLedger("ledger_entries_v1");
+
+
+  const form = document.getElementById("entryForm");
+  const descInput = document.getElementById("descInput");
+  const amountInput = document.getElementById("amountInput");
+  const typeInput = document.getElementById("typeInput");
+  const categoryInput = document.getElementById("categoryInput");
+  const entriesList = document.getElementById("entries");
+  const balanceDisplay = document.getElementById("balanceDisplay");
+  const emptyState = document.getElementById("emptyState");
+
+  function formatMoney(n) {
+    const sign = n < 0 ? "-" : "";
+    return sign + "Rs " + Math.abs(n).toFixed(2);
+  }
+
+
+  function render() {
+    const all = ledger.getAll().slice().reverse();
+    entriesList.innerHTML = "";
+
+    emptyState.style.display = all.length === 0 ? "block" : "none";
+
+    all.forEach(entry => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <div>
+          <span class="entry-desc">${entry.desc}</span>
+          <span class="entry-cat">${entry.category}</span>
+        </div>
+        <div>
+          <span class="entry-amount ${entry.type === 'income' ? 'income-text' : 'expense-text'}">
+            ${entry.type === "income" ? "+" : "-"}Rs ${entry.amount.toFixed(2)}
+          </span>
+          <button class="delete-btn" data-id="${entry.id}">Delete</button>
+        </div>
+      `;
+
+      entriesList.appendChild(li);
+    });
+
+    const balance = ledger.getBalance();
+    balanceDisplay.textContent = formatMoney(balance);
+    balanceDisplay.classList.toggle("negative", balance < 0);
+
+  
+    document.querySelectorAll(".delete-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        ledger.remove(Number(btn.dataset.id));
+        render();
+      });
+    });
+  }
+
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const desc = descInput.value.trim();
+    const amount = parseFloat(amountInput.value);
+
+    if (!desc || isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid description and amount.");
+      return;
+    }
+
+    ledger.add({
+      desc: desc,
+      amount: amount,
+      type: typeInput.value,
+      category: categoryInput.value
+    });
+
+    form.reset();
+    render();
+  });
+
+  render(); 
+</script>
+</body>
+</html>

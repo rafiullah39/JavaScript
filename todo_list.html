@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>To-Do List Demo</title>
+<style>
+  body { font-family: sans-serif; background:#1e293b; color:#f1f5f9; display:flex; flex-direction:column; align-items:center; padding-top:60px; margin:0; min-height:100vh; }
+  h1 { margin-bottom: 20px; }
+  #inputRow { display:flex; gap:8px; margin-bottom: 20px; }
+  #taskInput { padding:10px; border-radius:6px; border:none; width:250px; }
+  #addBtn { padding:10px 18px; border:none; border-radius:6px; background:#22c55e; color:white; cursor:pointer; }
+  ul { list-style:none; padding:0; width:320px; }
+  li { display:flex; justify-content:space-between; align-items:center; background:#334155; padding:10px 14px; margin-bottom:8px; border-radius:6px; }
+  li.done span { text-decoration: line-through; opacity:0.6; }
+  li button { background:#ef4444; border:none; color:white; padding:4px 10px; border-radius:4px; cursor:pointer; }
+</style>
+</head>
+<body>
+  <h1>My To-Do List</h1>
+  <div id="inputRow">
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <button id="addBtn">Add</button>
+  </div>
+  <ul id="taskList"></ul>
+
+<script>
+  
+  const taskInput = document.getElementById("taskInput");
+  const addBtn = document.getElementById("addBtn");
+  const taskList = document.getElementById("taskList");
+
+
+  function createTaskItem(taskText) {
+    const li = document.createElement("li");        
+
+    const span = document.createElement("span");
+    span.textContent = taskText;
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Delete";
+
+
+    span.addEventListener("click", () => {
+      li.classList.toggle("done");
+    });
+
+   
+    deleteBtn.addEventListener("click", () => {
+      li.remove();
+    });
+
+    li.appendChild(span);
+    li.appendChild(deleteBtn);
+    return li;
+  }
+
+  
+  function addTask() {
+    const text = taskInput.value.trim();
+    if (text === "") {
+      alert("Please type a task first!");
+      return;
+    }
+    const newItem = createTaskItem(text);
+    taskList.appendChild(newItem);   
+    taskInput.value = "";            
+    taskInput.focus();
+  }
+
+ 
+  addBtn.addEventListener("click", addTask);
+
+  
+  taskInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      addTask();
+    }
+  });
+</script>
+</body>
+</html>
