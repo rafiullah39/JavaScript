@@ -1,0 +1,126 @@
+Advanced JS Notes - Prototype Chain, ES6+, Generators, Modules
+
+ye mere notes hain advanced js topics (videos 36-51) se guzarne ke baad
+
+
+1. Prototype Chain
+----------------------------------------
+
+basically har object ke pechay ek "backup" object hota hai. agar hum kisi
+property ko access karain jo us object ke pass nahi hoti, to js fail nahi
+hota, wo us backup object mein check karta hai instead.
+
+example:
+
+const parent = { canWalk: true };
+const child = Object.create(parent);
+
+console.log(child.canWalk); // true, child ke pass nahi hai lekin parent ke pass hai
+
+class aur extends bhi yehi kaam karte hain background mein. jab hum ek
+class ko dusri se extend karte hain to js waisay hi ek backup link bana
+deta hai.
+
+class Vehicle {
+  honk() { console.log("beep"); }
+}
+class Car extends Vehicle {}
+
+const c = new Car();
+c.honk(); // works kyunke Car ke pass nahi hai but Vehicle ke pass hai
+
+
+
+2. ES6+ stuff (destructuring, spread/rest, optional chaining)
+----------------------------------------
+
+destructuring - object ya array ki values ko seedha variables mein nikalna.
+curly braces mein variable names left side pe hoti hain, object right side pe
+
+const person = { name: "Ali", age: 20 };
+const { name, age } = person;
+
+spread - kisi cheez ke andar jo bhi hai wo unpack karke copy kar deta hai
+
+const arr1 = [1,2,3];
+const arr2 = [...arr1, 4, 5]; // [1,2,3,4,5]
+
+rest - spread ka ulta, values ko collect karke ek array bana deta hai
+(zyada function parameters mein use hota hai)
+
+function total(...prices) {
+  return prices.reduce((a,b) => a+b, 0);
+}
+
+optional chaining - check karta hai ke koi cheez exist karti hai ya nahi,
+agar nahi to crash hone ke bajaye undefined de deta hai
+
+const user2 = {};
+console.log(user2.address?.city); // undefined, error nahi ayega
+
+
+3. Generators and Iterators
+----------------------------------------
+
+generator function normal function jaisi nahi hoti, ye beech mein ruk
+saktee hai aur baad mein wahin se continue kar saktee hai. function* likh
+kar banate hain
+
+function* makeNums() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+const g = makeNums();
+g.next().value // 1
+g.next().value // 2
+
+har .next() call pichlay point se continue karta hai, dobara start nahi
+hota.
+
+iterator basically koi bhi aisa object hai jiske pass next() function ho
+jo {value, done} wapis deta ho. arrays ke pass ye already built in hota
+hai, for...of loop asal mein yehi use karta hai peechay se. generators
+automatically ye khud bana detay hain, isi liye hum direct .next() call
+kar saktay hain ya for...of se loop kar saktay hain bina khud kuch setup
+kiye.
+
+
+4. ES Modules vs CommonJS
+----------------------------------------
+
+es modules = import/export, browsers mein chalta hai, sab kuch code chalne
+se pehlay hi load ho jata hai
+
+export function greet() { console.log("hi"); }
+import { greet } from './file.js';
+
+commonjs = require/module.exports, purana node ka tarika, code chalte
+waqt load hota hai isliye require() ko if statement ke andar bhi use kar
+saktay hain
+
+function greet() { console.log("hi"); }
+module.exports = { greet };
+
+const { greet } = require('./file.js');
+
+main farak - import/export zyada modern hai aur browsers mein use hota
+hai, require/module.exports purana node ka tarika hai jo kahin bhi
+conditionally load ho sakta hai
+
+
+mujhe kya cheezain confusing lagi
+----------------------------------------
+
+generators samajhnay mein thora time laga, especially wo part jahan ye
+"pause" hota hai aur agli .next() call pe wahin se continue karta hai.
+manual iterator khud likhne ke baad samajh aya ke generators asal mein
+kitna kaam khud handle kar dete hain
+
+iterators pehlay samajh nahi aa rahay thay jab tak ye nahi dekha ke arrays
+ke pass already ek built in hota hai aur for...of bas bar bar next() call
+kar raha hota hai peechay se
+
+prototype chain ab zyada clear hai jab se dekha ke class/extends bhi
+bas yehi cheez hai lekin nicer syntax ke sath
